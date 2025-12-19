@@ -3,58 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager | Управление задачами</title>
+    <title>TaskFlow | Умный менеджер задач</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
 </head>
-<body>
+<body class="light-theme">
     <div class="container">
-        <!-- Заголовок и статистика -->
+        <!-- Header с переключением темы -->
         <header class="header">
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-tasks"></i>
-                    <h1>Task Manager</h1>
+                    <h1>TaskFlow</h1>
+                    <span class="version">v2.0</span>
                 </div>
-                <div class="stats">
-                    <div class="stat">
-                        <span class="stat-number" id="totalTasks">0</span>
-                        <span class="stat-label">Всего задач</span>
+                
+                <div class="header-actions">
+                    <div class="theme-switch">
+                        <input type="checkbox" id="themeToggle" class="theme-toggle">
+                        <label for="themeToggle" class="theme-label">
+                            <i class="fas fa-sun"></i>
+                            <i class="fas fa-moon"></i>
+                            <span class="theme-ball"></span>
+                        </label>
                     </div>
-                    <div class="stat">
-                        <span class="stat-number" id="completedTasks">0</span>
-                        <span class="stat-label">Выполнено</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number" id="pendingTasks">0</span>
-                        <span class="stat-label">В процессе</span>
-                    </div>
+                    
+                    <button class="btn btn-icon" id="addQuickTaskBtn" title="Быстрая задача">
+                        <i class="fas fa-bolt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat">
+                    <i class="fas fa-list-check"></i>
+                    <span id="totalTasks">0</span>
+                    <small>Всего</small>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-clock"></i>
+                    <span id="pendingTasks">0</span>
+                    <small>Активные</small>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="completedTasks">0</span>
+                    <small>Выполнено</small>
+                </div>
+                <div class="stat urgent">
+                    <i class="fas fa-fire"></i>
+                    <span id="overdueTasks">0</span>
+                    <small>Просрочено</small>
                 </div>
             </div>
         </header>
 
         <div class="main-content">
-            <!-- Левая панель: добавление задачи -->
+            <!-- Левая панель: добавление задачи и теги -->
             <aside class="sidebar">
-                <div class="add-task-form">
+                <!-- Форма добавления задачи -->
+                <div class="card add-task-form">
                     <h2><i class="fas fa-plus-circle"></i> Новая задача</h2>
                     
                     <div class="form-group">
-                        <label for="taskTitle">Название задачи*</label>
-                        <input type="text" id="taskTitle" placeholder="Что нужно сделать?" maxlength="100">
+                        <input type="text" id="taskTitle" placeholder="Название задачи*" maxlength="100">
                         <div class="char-count"><span id="titleChars">0</span>/100</div>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label for="taskDescription">Описание</label>
-                        <textarea id="taskDescription" placeholder="Детали задачи (необязательно)" rows="3" maxlength="500"></textarea>
+                        <textarea id="taskDescription" placeholder="Описание (необязательно)" rows="3" maxlength="500"></textarea>
                         <div class="char-count"><span id="descChars">0</span>/500</div>
                     </div>
-
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="taskPriority">Приоритет</label>
+                            <label><i class="fas fa-flag"></i> Приоритет</label>
                             <select id="taskPriority">
                                 <option value="low">Низкий</option>
                                 <option value="medium" selected>Средний</option>
@@ -64,124 +88,144 @@
                         </div>
                         
                         <div class="form-group">
-                            <label for="taskCategory">Категория</label>
-                            <select id="taskCategory">
-                                <option value="work">Работа</option>
-                                <option value="personal" selected>Личное</option>
-                                <option value="study">Учёба</option>
-                                <option value="health">Здоровье</option>
-                                <option value="home">Дом</option>
-                                <option value="other">Другое</option>
-                            </select>
+                            <label><i class="fas fa-calendar-day"></i> Дедлайн</label>
+                            <input type="date" id="taskDueDate">
                         </div>
                     </div>
-
+                    
+                    <!-- Выбор тегов -->
                     <div class="form-group">
-                        <label for="taskDueDate">Срок выполнения</label>
-                        <input type="date" id="taskDueDate">
+                        <label><i class="fas fa-tags"></i> Теги</label>
+                        <div class="tags-input" id="tagsInput">
+                            <div class="selected-tags" id="selectedTags"></div>
+                            <input type="text" id="tagInput" placeholder="Добавить тег...">
+                            <div class="tag-suggestions" id="tagSuggestions"></div>
+                        </div>
+                        <div class="tags-hint">Введите текст и нажмите Enter</div>
                     </div>
-
+                    
                     <div class="form-actions">
-                        <button type="button" id="addTaskBtn" class="btn btn-primary">
+                        <button id="addTaskBtn" class="btn btn-primary">
                             <i class="fas fa-plus"></i> Добавить задачу
                         </button>
-                        <button type="button" id="clearFormBtn" class="btn btn-secondary">
+                        <button id="clearFormBtn" class="btn btn-secondary">
                             <i class="fas fa-broom"></i> Очистить
                         </button>
                     </div>
                 </div>
-
-                <!-- Категории -->
-                <div class="categories">
-                    <h3><i class="fas fa-folder"></i> Категории</h3>
-                    <div class="category-list">
-                        <div class="category-item" data-category="all">
-                            <i class="fas fa-list"></i> Все задачи
-                            <span class="category-count" id="countAll">0</span>
-                        </div>
-                        <div class="category-item" data-category="work">
-                            <i class="fas fa-briefcase"></i> Работа
-                            <span class="category-count" id="countWork">0</span>
-                        </div>
-                        <div class="category-item" data-category="personal">
-                            <i class="fas fa-user"></i> Личное
-                            <span class="category-count" id="countPersonal">0</span>
-                        </div>
-                        <div class="category-item" data-category="study">
-                            <i class="fas fa-graduation-cap"></i> Учёба
-                            <span class="category-count" id="countStudy">0</span>
-                        </div>
-                        <div class="category-item" data-category="health">
-                            <i class="fas fa-heartbeat"></i> Здоровье
-                            <span class="category-count" id="countHealth">0</span>
-                        </div>
+                
+                <!-- Управление тегами -->
+                <div class="card tags-manager">
+                    <h3><i class="fas fa-tags"></i> Управление тегами</h3>
+                    <div class="tags-list" id="tagsList">
+                        <!-- Теги будут добавлены через JS -->
+                    </div>
+                    <div class="tags-actions">
+                        <button id="createTagBtn" class="btn btn-small">
+                            <i class="fas fa-plus"></i> Создать тег
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Быстрые фильтры -->
+                <div class="card quick-filters">
+                    <h3><i class="fas fa-filter"></i> Быстрые фильтры</h3>
+                    <div class="filter-list">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-layer-group"></i> Все задачи
+                        </button>
+                        <button class="filter-btn" data-filter="today">
+                            <i class="fas fa-calendar-day"></i> На сегодня
+                        </button>
+                        <button class="filter-btn" data-filter="overdue">
+                            <i class="fas fa-exclamation-triangle"></i> Просроченные
+                        </button>
+                        <button class="filter-btn" data-filter="high">
+                            <i class="fas fa-flag"></i> Высокий приоритет
+                        </button>
+                        <button class="filter-btn" data-filter="completed">
+                            <i class="fas fa-check-circle"></i> Выполненные
+                        </button>
                     </div>
                 </div>
             </aside>
-
+            
             <!-- Основная область: список задач -->
             <main class="task-manager">
-                <!-- Фильтры и поиск -->
+                <!-- Поиск и сортировка -->
                 <div class="task-controls">
-                    <div class="search-box">
+                    <div class="search-container">
                         <i class="fas fa-search"></i>
-                        <input type="text" id="taskSearch" placeholder="Поиск задач...">
+                        <input type="text" id="taskSearch" placeholder="Поиск по названию, описанию или тегам...">
+                        <button class="btn btn-icon" id="clearSearchBtn">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                     
-                    <div class="filter-controls">
-                        <div class="filter-group">
-                            <label>Фильтр:</label>
-                            <select id="statusFilter">
-                                <option value="all">Все задачи</option>
-                                <option value="pending">Активные</option>
-                                <option value="completed">Выполненные</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label>Сортировка:</label>
-                            <select id="sortBy">
-                                <option value="dateAdded">По дате добавления</option>
-                                <option value="dueDate">По сроку выполнения</option>
-                                <option value="priority">По приоритету</option>
-                                <option value="title">По названию</option>
-                            </select>
-                        </div>
+                    <div class="sort-controls">
+                        <select id="sortBy">
+                            <option value="dueDate">По сроку</option>
+                            <option value="priority">По приоритету</option>
+                            <option value="title">По названию</option>
+                            <option value="created">По дате добавления</option>
+                        </select>
+                        <button class="btn btn-icon" id="sortDirectionBtn" title="Обратный порядок">
+                            <i class="fas fa-sort-amount-down"></i>
+                        </button>
                     </div>
                 </div>
-
+                
                 <!-- Список задач -->
                 <div class="task-list" id="taskList">
-                    <!-- Задачи будут добавляться здесь через JS -->
                     <div class="empty-state" id="emptyState">
                         <i class="fas fa-clipboard-list"></i>
                         <h3>Нет задач</h3>
-                        <p>Добавьте свою первую задачу с помощью формы слева</p>
+                        <p>Начните с добавления первой задачи</p>
                     </div>
                 </div>
-
-                <!-- Модальное окно редактирования -->
-                <div class="modal" id="editModal">
+                
+                <!-- Модальное окно тегов -->
+                <div class="modal" id="tagModal">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h2><i class="fas fa-edit"></i> Редактировать задачу</h2>
-                            <button class="close-modal" id="closeModalBtn">&times;</button>
+                            <h2><i class="fas fa-tag"></i> Создание тега</h2>
+                            <button class="close-modal">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <!-- Форма редактирования будет заполняться через JS -->
+                            <div class="form-group">
+                                <input type="text" id="newTagName" placeholder="Название тега" maxlength="20">
+                                <div class="char-count"><span id="tagChars">0</span>/20</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Цвет тега</label>
+                                <div class="color-picker" id="colorPicker">
+                                    <div class="color-option" data-color="#4361ee" style="background: #4361ee;"></div>
+                                    <div class="color-option" data-color="#3f37c9" style="background: #3f37c9;"></div>
+                                    <div class="color-option" data-color="#4cc9f0" style="background: #4cc9f0;"></div>
+                                    <div class="color-option" data-color="#f72585" style="background: #f72585;"></div>
+                                    <div class="color-option" data-color="#f8961e" style="background: #f8961e;"></div>
+                                    <div class="color-option" data-color="#4CAF50" style="background: #4CAF50;"></div>
+                                    <div class="color-option" data-color="#9c27b0" style="background: #9c27b0;"></div>
+                                    <div class="color-option" data-color="#607d8b" style="background: #607d8b;"></div>
+                                </div>
+                            </div>
+                            <div class="modal-actions">
+                                <button id="saveTagBtn" class="btn btn-primary">Создать тег</button>
+                                <button id="cancelTagBtn" class="btn btn-secondary">Отмена</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </main>
         </div>
-
-        <!-- Уведомления -->
+        
+        <!-- Уведомление -->
         <div class="notification" id="notification">
             <i class="fas fa-check-circle"></i>
             <span class="notification-text"></span>
         </div>
     </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
